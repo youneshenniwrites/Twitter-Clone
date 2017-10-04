@@ -1,7 +1,15 @@
 <h1>Tweets</h1>
+{% include 'tweets/tweet_search.html'%}
+
 {% for object in object_list %}
     <p>{{ object.content }}<br/>
     {{ object.user }}<br/>
     {{ object.timestamp|timesince }} ago</p><br/><br/>
+{% empty %}
+  {% if request.GET.q %}
+    <p>No tweets found.</p>
+  {% else %}
+    <p>No tweets yet.</p>
+  {% endif %}
 
 {% endfor %}
