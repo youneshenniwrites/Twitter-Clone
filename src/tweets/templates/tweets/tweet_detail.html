@@ -1,3 +1,11 @@
+{% extends 'base.html'%}
+
+{% block title %} {{ block.super }} Detail {% endblock title %}
+
+{% block content %}
+
 {{ object.content }}<br/>
 {{ object.user }}<br/>
 {{ object.timestamp|timesince }}
+
+{% endblock content %}

@@ -1,3 +1,9 @@
+{% extends 'base.html'%}
+
+{% block title %} {{ block.super }} Tweets {% endblock title %}
+
+{% block content %}
+
 <h1>Tweets</h1>
 {% include 'tweets/tweet_search.html'%}
 
@@ -13,3 +19,5 @@
   {% endif %}
 
 {% endfor %}
+
+{% endblock content %}
