@@ -20,20 +20,18 @@ from .mixins import FormUserNeededMixin, UserOwnerMixin
 class TweetCreateView(FormUserNeededMixin, CreateView):
     form_class = TweetModelForm
     template_name = 'tweets/tweet_create.html'
-    success_url = "/tweet/create/"
 
 
 class TweetUpdateView(LoginRequiredMixin, UserOwnerMixin, UpdateView):
     queryset = Tweet.objects.all()
     form_class = TweetModelForm
     template_name = 'tweets/tweet_update.html'
-    success_url = "/tweet/"
 
 
 class TweetDeleteView(LoginRequiredMixin, DeleteView):
     model = Tweet
     template_name = 'tweets/tweet_delete.html'
-    success_url = reverse_lazy("home")
+    success_url = reverse_lazy("tweets:list")
 
 
 class TweetDetailView(DetailView):
