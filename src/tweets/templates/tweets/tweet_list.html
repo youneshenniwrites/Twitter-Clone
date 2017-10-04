@@ -4,12 +4,20 @@
 
 {% block content %}
 
-<div class='row'>
-    <div class='col-sm-3 col-xs-12' style='background-color:red;'>
+    <div class='row'>
+        <div class='col-sm-3 col-xs-12' style='background-color:gray;'>
         <h1>{{ request.user }}</h1>
-    </div>
-    <div class='col-sm-9 '>
+        </div>
+        <div class='col-sm-9 '>
           <h1>Tweets</h1><hr>
+             {% if not request.GET.q %}
+                <div class=''>
+
+                    {% include "tweets/form.html" with form=create_form action_url=create_url btn_title='Tweet' %}
+
+                </div>
+                <hr/>
+            {% endif %}
         {% for object in object_list %}
             <div class="media">
                   <div class="media-left">
@@ -33,7 +41,7 @@
             {% endif %}
         {% endfor %}
 
+        </div>
     </div>
-</div>
 
 {% endblock content %}
