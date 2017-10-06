@@ -34,9 +34,10 @@
       var dateDisplay = tweetValue.date_display;
 
       var tweetFormattedHTML = "<div class=\"media\"><div class=\"media-body\">"
-                                + tweetContent + "<br/> via "
-                                + tweetUser.username
-                                + " | " + dateDisplay + " | "
+                                + tweetContent
+                                + "<br/> via <a href='" + tweetUser.url + "'>"
+                                + tweetUser.username            
+                                + " </a>| " + dateDisplay + " | "
                                 + "<a href='#'>View</a>"
                                 + "</div></div><hr/>";
 
