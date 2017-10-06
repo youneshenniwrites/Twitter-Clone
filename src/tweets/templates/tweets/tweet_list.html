@@ -26,22 +26,34 @@
     var query = getParameterByName('q');
     var tweetList = [];
 
+    function attachTweet(tweetValue, prepend){
+      // appends the new tweet to the tweets list
+      var tweetContent = tweetValue.content;
+      var tweetUser = tweetValue.user;
+      var dateDisplay = tweetValue.date_display;
+
+      var tweetFormattedHTML = "<div class=\"media\"><div class=\"media-body\">"
+                                + tweetContent + "<br/> via "
+                                + tweetUser.username
+                                + " | " + dateDisplay + " | "
+                                + "<a href='#'>View</a>"
+                                + "</div></div><hr/>";
+
+      if (prepend==true) {
+        $("#tweet-container").prepend(tweetFormattedHTML);
+      } else {
+        $("#tweet-container").append(tweetFormattedHTML);
+      }
+    }
+
     function parseTweets(){
       if (tweetList == 0) {
         $("#tweet-container").text("No tweets currently found.")
       } else {
         // tweets exist, parse & display them
        $.each(tweetList, function(key, value){
-            var tweetKey = key;
-            var tweetContent = value.content;
-            var tweetUser = value.user;
-            var dateDisplay = value.date_display;
-            $("#tweet-container").append(
-                "<div class=\"media\"><div class=\"media-body\">"
-                + tweetContent + "<br/> via " + tweetUser.username
-                + " | " + dateDisplay + " | " + "<a href='#'>View</a>"
-                + "</div></div><hr/>"
-            )
+         attachTweet(value);
+
         })
       }
     }
@@ -81,12 +93,12 @@
         data: formData,
         method: 'POST',
         success: function(data){
-          console.log(data);
-          fetchTweets(); // refreshes the tweets list
+          attachTweet(data, true); // attaches the new tweet
+          // empty the form after sumbission
+          this_.find('input[type=text], textarea').val('');
         },
         error: function(data){
           console.log('error');
-          console.log(data);
         }
       });
 
