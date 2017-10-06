@@ -10,6 +10,14 @@
     <!-- Bootstrap -->
     <!-- Latest compiled and minified CSS -->
     <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+    <style>
+      .red-color {
+        color: red;
+      }
+      .grey-color {
+        color: #ccc;
+      }
+    </style>
 
   </head>
   <body>
@@ -21,6 +29,39 @@
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     {% block script %}{% endblock script %}
+
+    <!--Autosearch function-->
+    <script type="text/javascript">
+      $(document).ready(function(){
+        var typingTimer;
+        var doneInterval = 650;
+        var searchInput = $('#navbar-search-form input[type=text]');
+        var searchQuery;
+
+        searchInput.keyup(function(event){
+          // executes when releasing the key
+          searchQuery = $(this).val();
+
+          clearTimeout(typingTimer);
+          typingTimer = setTimeout(doneSearchTyping, doneInterval);
+        });
+
+        searchInput.keydown(function(event){
+          // executes when pressing the key
+          clearTimeout(typingTimer);
+        });
+
+        function doneSearchTyping(){
+          if (searchQuery) {
+            // do search
+            var url = '/tweets/search/?q=' + searchQuery;
+            document.location.href = url;
+          }
+        }
+
+      });
+    </script>
+
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src={% static 'js/bootstrap.min.js' %}></script>
     <!-- Latest compiled and minified JavaScript -->
