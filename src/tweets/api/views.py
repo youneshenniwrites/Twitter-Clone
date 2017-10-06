@@ -26,7 +26,7 @@ class TweetListAPIView(generics.ListAPIView):
         to integrate with our ajax call
         '''
 
-        qs = Tweet.objects.all()
+        qs = Tweet.objects.all().order_by('-timestamp')
         query = self.request.GET.get('q' or None)
         if query is not None:
             qs = qs.filter(

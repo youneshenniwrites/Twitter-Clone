@@ -32,16 +32,15 @@
       } else {
         // tweets exist, parse & display them
        $.each(tweetList, function(key, value){
-           // console.log(key);
-           // console.log(value.user.username);
-           // console.log(value.content);
             var tweetKey = key;
             var tweetContent = value.content;
             var tweetUser = value.user;
+            var dateDisplay = value.date_display;
             $("#tweet-container").append(
                 "<div class=\"media\"><div class=\"media-body\">"
                 + tweetContent + "<br/> via " + tweetUser.username
-                + " | " + "<a href='#'>View</a>" + "</div></div><hr/>"
+                + " | " + dateDisplay + " | " + "<a href='#'>View</a>"
+                + "</div></div><hr/>"
             )
         })
       }
@@ -52,7 +51,6 @@
     or a new tweet is submitted
     **/
     function fetchTweets(){
-      // console.log('printing data...')
       $.ajax({
         url: '/api/tweets/',
         data: {
