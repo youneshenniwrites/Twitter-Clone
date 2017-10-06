@@ -41,6 +41,10 @@ class TweetDetailView(DetailView):
 
 class TweetListView(ListView):
     def get_queryset(self):
+        '''
+        building a search function
+        '''
+
         qs = Tweet.objects.all()
         query = self.request.GET.get('q' or None)
         if query is not None:
