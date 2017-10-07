@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.urls import reverse_lazy
+from django.db.models.signals import post_save
 
 
 class UserProfileManager(models.Manager):
@@ -69,3 +70,14 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return str(self.following.all().count())
+
+
+def post_save_user_receiver(sender, instance, created, *args, **kwargs):
+    '''
+    Django signal to automatically create
+    a user profiles when a user object is created
+    '''
+    if created:
+        new_profile = UserProfile.objects.get_or_create(user=instance)
+
+post_save.connect(post_save_user_receiver, sender=settings.AUTH_USER_MODEL)
