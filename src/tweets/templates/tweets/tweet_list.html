@@ -36,25 +36,27 @@
       })
     }
 
-    function attachTweet(tweetValue, prepend){
+    function attachTweet(tweetValue, prepend, retweet){
       // appends the new tweet to the tweets list
-      var tweetContent = tweetValue.content;
-      var tweetUser = tweetValue.user;
-      var dateDisplay = tweetValue.date_display;
+        var dateDisplay = tweetValue.date_display;
+        var tweetContent = tweetValue.content;
+        var tweetUser = tweetValue.user;
+        var tweetFormattedHtml;
 
-      var tweetFormattedHTML = "<div class=\"media\"><div class=\"media-body\">"
-                                + tweetContent
-                                + "<br/> via <a href='" + tweetUser.url + "'>"
-                                + tweetUser.username
-                                + " </a>| " + dateDisplay + " | "
-                                + "<a href='#'>View</a>"
-                                + "</div></div><hr/>";
+        if (retweet && tweetValue.parent){
+         // retweet
+          var mainTweet = tweetValue.parent
+           tweetFormattedHtml = "<div class=\"media\"><div class=\"media-body\"><span class='grey-color'>Retweet via " + tweetUser.username +" on " + dateDisplay + "</span><br/>"+ mainTweet.content + "<br/> via <a href='" + mainTweet.user.url + "'>" + mainTweet.user.username + "</a> | " + mainTweet.date_display + " | " + "<a href='/tweets/" + mainTweet.id + "'>View</a> | " + "<a href='/tweets/" + tweetValue.id + "/retweet/'>Retweet</a>" + "</div></div><hr/>"
+        } else {
+          // fresh tweet
+           tweetFormattedHtml = "<div class=\"media\"><div class=\"media-body\">" + tweetContent + "<br/> via <a href='" + tweetUser.url + "'>" + tweetUser.username + "</a> | " + dateDisplay + " | " + "<a href='/tweets/" + tweetValue.id + "'>View</a> | " + "<a href='/tweets/" + tweetValue.id + "/retweet/'>Retweet</a>" + "</div></div><hr/>"
+        }
 
-      if (prepend==true) {
-        $("#tweet-container").prepend(tweetFormattedHTML);
-      } else {
-        $("#tweet-container").append(tweetFormattedHTML);
-      }
+        if (prepend==true){
+          $("#tweet-container").prepend(tweetFormattedHtml)
+        } else {
+          $("#tweet-container").append(tweetFormattedHtml)
+       }
     }
 
     function parseTweets(){
@@ -63,7 +65,11 @@
       } else {
         // tweets exist, parse & display them
        $.each(tweetList, function(key, value){
-         attachTweet(value);
+         if (value.parent) {
+           attachTweet(value, false, true);
+         } else {
+           attachTweet(value);
+         }
 
         })
       }
