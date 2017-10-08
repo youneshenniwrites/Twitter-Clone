@@ -27,6 +27,15 @@
     var tweetList = [];
     var nextTweetUrl;  // to be used for ajax loading tweets
 
+    function updateHashLinks(){
+      // creating a tag link from our tweet hashtags
+      $(".media-body").each(function(data){
+        var hashtagRegex = /(^|\s)#([\w\d-]+)/g
+        var newText = $(this).html().replace(hashtagRegex, "$1<a href='/tags/$2/'>#$2</a>")
+        $(this).html(newText)
+      })
+    }
+
     function attachTweet(tweetValue, prepend){
       // appends the new tweet to the tweets list
       var tweetContent = tweetValue.content;
@@ -85,6 +94,7 @@
             $('#load-more').css('display', 'none');
           }
           parseTweets();
+          updateHashLinks();
         },
         error: function(data){
           console.log('error');
@@ -150,6 +160,7 @@
             attachTweet(data, true); // attaches the new tweet
             // empty the form after sumbission
             this_.find('input[type=text], textarea').val('');
+            updateHashLinks();
           },
           error: function(data){
             console.log('error');

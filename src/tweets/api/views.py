@@ -18,6 +18,10 @@ class TweetCreateAPIView(generics.CreateAPIView):
 
 
 class TweetListAPIView(generics.ListAPIView):
+    '''
+    displays the list of tweets from the user and her followers
+    '''
+
     serializer_class = TweetModelSerializer
     # permission_classes = pass
     pagination_class = StandardResultsSetPagination
@@ -28,7 +32,10 @@ class TweetListAPIView(generics.ListAPIView):
         to integrate with our ajax call
         '''
 
-        qs = Tweet.objects.all().order_by('-timestamp')
+        im_following = self.request.user.profile.get_following()
+        qs1 = Tweet.objects.filter(user__in=im_following)
+        qs2 = Tweet.objects.filter(user=self.request.user)
+        qs = (qs1 | qs2).distinct().order_by('-timestamp')
         query = self.request.GET.get('q' or None)
         if query is not None:
             qs = qs.filter(
