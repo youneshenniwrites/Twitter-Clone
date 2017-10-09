@@ -42,12 +42,22 @@ class TweetManager(models.Manager):
         obj.save()
         return obj
 
+    def like_toggle(self, user, tweet_obj):
+        if user in tweet_obj.liked.all():
+            is_liked = False
+            tweet_obj.liked.remove(user)
+        else:
+            is_liked = True
+            tweet_obj.liked.add(user)
+        return is_liked
+
 
 class Tweet(models.Model):
     # the self assures that a retweet always points to its parent
     parent      = models.ForeignKey('self', blank=True, null=True)
     user        = models.ForeignKey(settings.AUTH_USER_MODEL)
     content     = models.CharField(max_length=255, validators=[validate_content])
+    liked       = models.ManyToManyField(settings.AUTH_USER_MODEL, blank=True, related_name='liked')
     updated     = models.DateTimeField(auto_now=True)
     timestamp   = models.DateTimeField(auto_now_add=True)
 
@@ -76,6 +86,6 @@ def tweet_save_receiver(sender, instance, created, *args, **kwargs):
 
         hash_regex = r'#(?P<hashtag>[\w\d-]+)'
         hashtags = re.findall(hash_regex, instance.content)
-        parsed_hashtags.send(sender=instance.__class__, hashtag_list=hashtags)  
+        parsed_hashtags.send(sender=instance.__class__, hashtag_list=hashtags)
 
 post_save.connect(tweet_save_receiver, sender=Tweet)
