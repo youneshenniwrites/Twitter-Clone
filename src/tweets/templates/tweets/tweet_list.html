@@ -3,214 +3,15 @@
 {% block title %} {{ block.super }} Tweets {% endblock title %}
 
 {% block script %}
-<script type="text/javascript">
+  <script type="text/javascript">
 
-  function getParameterByName(name, url) {
-    /**
-    a stackoverflow thread that shows how to
-    handle the query search parameter in our ajax
-    call function
-    **/
-    if (!url) {
-      url = window.location.href;
-    }
-    name = name.replace(/[\[\]]/g, "\\$&");
-    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
-        results = regex.exec(url);
-    if (!results) return null;
-    if (!results[2]) return '';
-    return decodeURIComponent(results[2].replace(/\+/g, " "));
-  }
+    $(document).ready(function(){
+      // loads the tweets list
 
-  $(document).ready(function(){
-    var query = getParameterByName('q');
-    var tweetList = [];
-    var nextTweetUrl;  // to be used for ajax loading tweets
-
-    // ajax retweet
-    $(document.body).on('click', '.retweetBtn', function(e){
-      /**
-      the syntax of the click event has been
-      changed to resovle the page reload issue
-      **/
-      e.preventDefault();
-      console.log('clicked');
-      var url = '/api' + $(this).attr('href');
-
-      $.ajax({
-        mathod: 'GET',
-        url: url,
-        success: function(data){
-          console.log(data);
-          attachTweet(data, true, true); // attaches the new tweet and allow retweets
-          updateHashLinks();
-        },
-        error: function(data){
-          console.log('error');
-          console.log(data);
-      },
-    }) // end of ajax
+      loadTweetContainer("tweet-container");
     });
 
-    function updateHashLinks(){
-      // creating a tag link from our tweet hashtags
-      $(".media-body").each(function(data){
-        var hashtagRegex = /(^|\s)#([\w\d-]+)/g;
-        var userNameRegex = /(^|\s)@([\w\d-]+)/g;
-        var currentHtml = $(this).html();
-        var newText;
-        newText = currentHtml.replace(hashtagRegex, "$1<a href='/tags/$2/'>#$2</a>");
-        newText = newText.replace(userNameRegex, "$1 @<a href='/$2/'>$2</a>");
-        $(this).html(newText);
-      })
-    }
-
-    function attachTweet(tweetValue, prepend, retweet){
-      // appends the new tweet to the tweets list
-        var dateDisplay = tweetValue.date_display;
-        var tweetContent = tweetValue.content;
-        var tweetUser = tweetValue.user;
-        var tweetFormattedHtml;
-
-        if (retweet && tweetValue.parent){
-         // retweet
-          var mainTweet = tweetValue.parent
-           tweetFormattedHtml = "<div class=\"media\"><div class=\"media-body\"><span class='grey-color'>Retweet via " + tweetUser.username +" on " + dateDisplay + "</span><br/>"+ mainTweet.content + "<br/> via <a href='" + mainTweet.user.url + "'>" + mainTweet.user.username + "</a> | " + mainTweet.date_display + " | " + "<a href='/tweets/" + mainTweet.id + "'>View</a> | " + "<a class='retweetBtn' href='/tweets/" + tweetValue.id + "/retweet/'>Retweet</a>" + "</div></div><hr/>"
-        } else {
-          // fresh tweet
-           tweetFormattedHtml = "<div class=\"media\"><div class=\"media-body\">" + tweetContent + "<br/> via <a href='" + tweetUser.url + "'>" + tweetUser.username + "</a> | " + dateDisplay + " | " + "<a href='/tweets/" + tweetValue.id + "'>View</a> | " + "<a class='retweetBtn' href='/tweets/" + tweetValue.id + "/retweet/'>Retweet</a>" + "</div></div><hr/>"
-        }
-
-        if (prepend==true){
-          $("#tweet-container").prepend(tweetFormattedHtml)
-        } else {
-          $("#tweet-container").append(tweetFormattedHtml)
-       }
-    }
-
-    function parseTweets(){
-      if (tweetList == 0) {
-        $("#tweet-container").text("No tweets currently found.")
-      } else {
-        // tweets exist, parse & display them
-       $.each(tweetList, function(key, value){
-         if (value.parent) {
-           attachTweet(value, false, true);
-         } else {
-           attachTweet(value);
-         }
-
-        })
-      }
-    }
-
-    /**
-    making an ajax call every time the page is loaded
-    or a new tweet is submitted
-    **/
-    function fetchTweets(url){
-      var fetchUrl;
-      if (!url) {
-        fetchUrl = '/api/tweets/';
-      } else {
-        fetchUrl = url;
-      }
-      $.ajax({
-        url: fetchUrl,
-        data: {
-          'q': query // gets appended to the above url
-        },
-        method: 'GET',
-        success: function(data){
-          tweetList = data.results;
-          if (data.next) {
-            nextTweetUrl = data.next;
-          } else {
-            $('#load-more').css('display', 'none');
-          }
-          parseTweets();
-          updateHashLinks();
-        },
-        error: function(data){
-          console.log('error');
-          console.log(data);
-        }
-      });
-    }
-
-    fetchTweets();
-
-    $('#load-more').click(function(event){
-      event.preventDefault();
-      // load more data
-      if (nextTweetUrl) {
-        fetchTweets(nextTweetUrl);
-      }
-
-    })
-
-    // counting the number of characters
-    var charsStart = 140;
-    var charsCurrent = 0;
-    $('#tweet-form').append("<span id='tweetCharsLeft'>" + charsStart + "</span>")
-
-    $('#tweet-form textarea').keyup(function(event){
-      /**
-      the built up keyup function monitors
-      the typing inside the textarea of our form
-      **/
-      var tweetValue = $(this).val(); // grabs what is inside the textarea
-      charsCurrent = charsStart - tweetValue.length;
-      var spanChars = $('#tweetCharsLeft');
-      spanChars.text(charsCurrent); // updates the current chars num
-
-      if (charsCurrent > 0 ) {
-         // remove classes
-         spanChars.removeClass("grey-color")
-         spanChars.removeClass("red-color")
-      } else if (charsCurrent == 0) {
-         // add grey class
-         spanChars.removeClass("red-color")
-         spanChars.addClass("grey-color")
-      } else if (charsCurrent < 0) {
-          // add red class
-          spanChars.removeClass("grey-color")
-          spanChars.addClass("red-color")
-      }
-
-    })
-
-    // ajax form tweet submission
-    $('#tweet-form').submit(function(event){
-      event.preventDefault();
-      var this_ = $(this)
-      var formData = this_.serialize();  // outputs json data
-
-      if (charsCurrent >= 0) {
-        $.ajax({
-          url: '/api/tweets/create/',
-          data: formData,
-          method: 'POST',
-          success: function(data){
-            attachTweet(data, true); // attaches the new tweet
-            // empty the form after sumbission
-            this_.find('input[type=text], textarea').val('');
-            updateHashLinks();
-          },
-          error: function(data){
-            console.log('error');
-          }
-        });
-      } else {
-        console.log('Tweet exceeds 140 characters!')
-      }
-
-    })
-
-  });
-
-
-</script>
+  </script>
 
 {% endblock script %}
 
@@ -229,7 +30,7 @@
       <hr/>
     {% endif %}
 
-    <div id='tweet-container'>
+    <div id='tweet-container' data-url='/api/tweets/'>
     </div>
 
     <!--loading more tweets-->

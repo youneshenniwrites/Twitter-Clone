@@ -50,10 +50,18 @@ class TweetListAPIView(generics.ListAPIView):
         to integrate with our ajax call
         '''
 
-        im_following = self.request.user.profile.get_following()
-        qs1 = Tweet.objects.filter(user__in=im_following)
-        qs2 = Tweet.objects.filter(user=self.request.user)
-        qs = (qs1 | qs2).distinct().order_by('-timestamp')
+        requested_user = self.kwargs.get('username')
+
+        if requested_user:
+            # if a specific user then show only her tweets
+            qs = Tweet.objects.filter(user__username=requested_user).order_by('-timestamp')
+        else:
+            # show her tweets and her followers
+            im_following = self.request.user.profile.get_following()
+            qs1 = Tweet.objects.filter(user__in=im_following)
+            qs2 = Tweet.objects.filter(user=self.request.user)
+            qs = (qs1 | qs2).distinct().order_by('-timestamp')
+
         query = self.request.GET.get('q' or None)
         if query is not None:
             qs = qs.filter(
