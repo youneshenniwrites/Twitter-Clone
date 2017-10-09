@@ -9,12 +9,28 @@ class ParentTweetModelSerializer(serializers.ModelSerializer):
     user = UserDisplaySerializer(read_only=True)
     date_display = serializers.SerializerMethodField()
     timesince = serializers.SerializerMethodField()
+    likes = serializers.SerializerMethodField()
+    did_like = serializers.SerializerMethodField()
 
     def get_date_display(self, obj):
         return obj.timestamp.strftime("%b %d, %Y at %I:%M %p")
 
     def get_timesince(self, obj):
         return timesince(obj.timestamp) + " ago"
+
+    def get_likes(self, obj):
+        return obj.liked.all().count()
+
+    def get_did_like(self, obj):
+        request = self.context.get('request')
+        try:
+            user = request.user
+            if user.is_authenticated():
+                if user in obj.liked.all():
+                    return True
+        except:
+            pass
+        return False
 
     class Meta:
         model = Tweet
@@ -25,6 +41,8 @@ class ParentTweetModelSerializer(serializers.ModelSerializer):
             'timestamp',
             'date_display',
             'timesince',
+            'likes',
+            'did_like',
         ]
 
 
@@ -49,12 +67,15 @@ class TweetModelSerializer(serializers.ModelSerializer):
         '''
         to be used in ajax call to change the verb
         '''
-        
+
         request = self.context.get('request')
-        user = request.user
-        if user.is_authenticated():
-            if user in obj.liked.all():
-                return True
+        try:
+            user = request.user
+            if user.is_authenticated():
+                if user in obj.liked.all():
+                    return True
+        except:
+            pass
         return False
 
     class Meta:
@@ -69,4 +90,5 @@ class TweetModelSerializer(serializers.ModelSerializer):
             'parent',
             'likes',
             'did_like',
+            'reply',
         ]

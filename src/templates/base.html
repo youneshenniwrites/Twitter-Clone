@@ -133,38 +133,67 @@
           })
         }
 
+        function formatTweet(tweetValue){
+          // tweets list formatting function
+          var preContent;
+          var container;
+          var tweetContent;
+          var isReply = tweetValue.reply;
+
+          if (tweetValue.parent && !isReply){
+            // only for retweeted tweets
+            tweetValue = tweetValue.parent;
+            preContent = "<span class='grey-color'>Retweet via "
+            + tweetValue.user.username +" on "
+            + tweetValue.date_display + "</span><br/>";
+          } else if (tweetValue.parent && isReply) {
+            preContent = "<span class='grey-color'>Reply to @"
+            + tweetValue.parent.user.username + "</span><br/>";
+          }
+
+          // dynamic verb for the like button
+          var verb = 'Like';
+          if (tweetValue.did_like){
+            verb = 'Unlike';
+          }
+
+          // formatting tweets list for feeds and detail pages
+          tweetContent = tweetValue.content + "<br/> via <a href='"
+          + tweetValue.user.url + "'>" + tweetValue.user.username
+          + "</a> | " + tweetValue.date_display + " | "
+          + "<a href='/tweets/" + tweetValue.id + "'>View</a> | "
+          + "<a class='retweetBtn' href='/tweets/" + tweetValue.id
+          + "/retweet/'>Retweet</a>"
+          + " | <a href='#' class='tweet-like' data-id='"
+          + tweetValue.id + "''>" + verb + " (" + tweetValue.likes + ")</a>"
+          + " | <a href='#' class='tweet-reply' data-id='"
+          + tweetValue.id + "''>Reply</a>";
+
+          if (preContent){
+            container = "<div class=\"media\"><div class=\"media-body\">"
+            + preContent + tweetContent + "</div></div><hr>";
+          } else {
+            container = "<div class=\"media\"><div class=\"media-body\">"
+            + tweetContent + "</div></div><hr>";
+          }
+
+          return container
+
+        };
+
         function attachTweet(tweetValue, prepend, retweet){
-          // appends the new tweet to the tweets list
-            var dateDisplay = tweetValue.date_display;
-            var tweetContent = tweetValue.content;
-            var tweetUser = tweetValue.user;
-            var tweetFormattedHtml;
-            var verb = 'Like';
-
-            // dynamic verb for the like button
-            if (tweetValue.did_like){
-              verb = 'Unlike';
-            }
-
-            if (retweet && tweetValue.parent){
-             // retweet
-              var mainTweet = tweetValue.parent
-               tweetFormattedHtml = "<div class=\"media\"><div class=\"media-body\"><span class='grey-color'>Retweet via " + tweetUser.username +" on " + dateDisplay + "</span><br/>"+ mainTweet.content + "<br/> via <a href='" + mainTweet.user.url + "'>" + mainTweet.user.username + "</a> | " + mainTweet.date_display + " | " + "<a href='/tweets/" + mainTweet.id + "'>View</a> | " + "<a class='retweetBtn' href='/tweets/" + tweetValue.id + "/retweet/'>Retweet</a>" + " | <a href='#' class='tweet-like' data-id=" + tweetValue.id + ">" + verb + " (" + tweetValue.likes + ")</a></div></div><hr/>";
-            } else {
-              // fresh tweet
-               tweetFormattedHtml = "<div class=\"media\"><div class=\"media-body\">" + tweetContent + "<br/> via <a href='" + tweetUser.url + "'>" + tweetUser.username + "</a> | " + dateDisplay + " | " + "<a href='/tweets/" + tweetValue.id + "'>View</a> | " + "<a class='retweetBtn' href='/tweets/" + tweetValue.id + "/retweet/'>Retweet</a>" + " | <a href='#' class='tweet-like' data-id=" + tweetValue.id + ">" + verb + " (" + tweetValue.likes + ")</a></div></div><hr/>";
-            }
+            tweetFormattedHtml = formatTweet(tweetValue);
 
             if (prepend==true){
-              tweetContainer.prepend(tweetFormattedHtml)
+              tweetContainer.prepend(tweetFormattedHtml);
             } else {
-              tweetContainer.append(tweetFormattedHtml)
+              tweetContainer.append(tweetFormattedHtml);
            }
-        }
+        };
 
         function parseTweets(){
           if (tweetList == 0) {
-            tweetContainer.text("No tweets currently found.")
+            tweetContainer.text("No tweets currently found.");
           } else {
             // tweets exist, parse & display them
            $.each(tweetList, function(key, value){
