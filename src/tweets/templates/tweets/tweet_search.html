@@ -1,5 +1,5 @@
 <form id='navbar-search-form' class="navbar-form navbar-left" method='GET'
-action='{% url "tweets:list" %}'>
+action='{% url "search" %}'>
         <div class="form-group">
             <input class="form-control" type='text' name='q'
             placeholder='Your search' value='{{ request.GET.q }}'/>

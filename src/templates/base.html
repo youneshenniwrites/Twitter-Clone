@@ -149,7 +149,7 @@
 
         function updateHashLinks(){
           // creating a tag link from our tweet hashtags
-          $(".media-body").each(function(data){
+          $(".content").each(function(data){
             var hashtagRegex = /(^|\s)#([\w\d-]+)/g;
             var userNameRegex = /(^|\s)@([\w\d-]+)/g;
             var currentHtml = $(this).html();
@@ -412,7 +412,7 @@
         function doneSearchTyping(){
           if (searchQuery) {
             // do search
-            var url = '/tweets/search/?q=' + searchQuery;
+            var url = '/search/?q=' + searchQuery;
             document.location.href = url;
           }
         }

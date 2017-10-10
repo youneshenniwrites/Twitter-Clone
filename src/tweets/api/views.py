@@ -101,3 +101,24 @@ class TweetListAPIView(generics.ListAPIView):
             Q(user__username__icontains=query)
             ).distinct()
         return qs
+
+
+class SearchTweetAPIView(generics.ListAPIView):
+    queryset = Tweet.objects.all().order_by('-timestamp')
+    serializer_class = TweetModelSerializer
+    pagination_class = StandardResultsPagination
+
+    def get_serializer_context(self, *args, **kwargs):
+        context = super(SearchTweetAPIView, self).get_serializer_context(*args, **kwargs)
+        context['request'] = self.request
+        return context
+
+    def get_queryset(self):
+        qs = self.queryset
+        query = self.request.GET.get('q' or None)
+        if query is not None:
+            qs = qs.filter(
+            Q(content__icontains=query) |
+            Q(user__username__icontains=query)
+            ).distinct()
+        return qs

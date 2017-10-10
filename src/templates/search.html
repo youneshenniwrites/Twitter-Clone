@@ -24,16 +24,25 @@
       <p class="lead">Results for <b>{{ request.GET.q }}</b></p><hr>
     {% endif %}
   </div>
-  <div class='col-sm-8 col-sm-offset-2'>
+  <div class='col-sm-9 '>
     <h1>Tweets</h1><hr>
 
-    <div id='tweet-container' data-url='/api/tags/{{ obj.tag }}/'>
+    <div id='tweet-container' data-url='/api/search/'>
     </div>
 
     <!--loading more tweets-->
     <a href="" id='load-more'>
       Load more tweets
     </a>
+  </div>
+
+  <div class='col-sm-3' style='background-color:grey;'>
+    <h1>Users</h1>
+    {% for user in users %}
+      <a href="/{{ user.username }}/"><b>{{ user.username }}</b></a><br>
+    {% empty %}
+      <p>No users found</p>
+    {% endfor %}
   </div>
 
 </div>
