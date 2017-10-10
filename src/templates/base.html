@@ -21,10 +21,15 @@
 
   </head>
   <body>
+    {% include 'navbar.html' %}
+
     <div class="container">
-      {% include 'navbar.html' %}
-      {% block content %}{% endblock content %}
+      {% block content %}
+      {% endblock content %}
     </div>
+
+    {% include 'reply-modal.html' %}
+
 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
@@ -89,6 +94,26 @@
           }) // end of ajax
         });
 
+        // ajax reply to tweets
+        $(document.body).on('click', '.tweet-reply', function(e){
+          e.preventDefault();
+          var this_ = $(this);
+          var parentId = this_.attr('data-id');
+          var username = this_.attr('data-user');
+          var content = this_.parent().parent().find('.content').text();
+          // calling an empty modal reply form
+          $('#replyModal').modal({})
+          $('#replyModal textarea').after("<input type='hidden' value='" + parentId + "' name='parent_id'>");
+          $('#replyModal textarea').after("<input type='hidden' value='" + true + "' name='reply'>");
+          $('#replyModal textarea').val('@' + username + " ");
+          // dynamic title of parent tweet
+          $('#replyModal #replyModalLabel').text('Reply to: ' + content);
+          $('#replyModal').
+          $('#replyModal').on('shown.bs.modal', function(){
+            // start typing in the textarea immediatly
+            $('textarea').focus();
+          });
+        });
 
         // ajax retweet
         $(document.body).on('click', '.retweetBtn', function(e){
@@ -158,7 +183,7 @@
           }
 
           // formatting tweets list for feeds and detail pages
-          tweetContent = tweetValue.content + "<br/> via <a href='"
+          tweetContent = "<span class='content'>" + tweetValue.content + "</span><br/> via <a href='"
           + tweetValue.user.url + "'>" + tweetValue.user.username
           + "</a> | " + tweetValue.date_display + " | "
           + "<a href='/tweets/" + tweetValue.id + "'>View</a> | "
@@ -166,7 +191,7 @@
           + "/retweet/'>Retweet</a>"
           + " | <a href='#' class='tweet-like' data-id='"
           + tweetValue.id + "''>" + verb + " (" + tweetValue.likes + ")</a>"
-          + " | <a href='#' class='tweet-reply' data-id='"
+          + " | <a href='#' class='tweet-reply' data-user='" + tweetValue.user.username + "' data-id='"
           + tweetValue.id + "''>Reply</a>";
 
           if (preContent){
@@ -255,16 +280,16 @@
         // counting the number of characters
         var charsStart = 140;
         var charsCurrent = 0;
-        $('#tweet-form').append("<span id='tweetCharsLeft'>" + charsStart + "</span>")
+        $('.tweet-form').append("<span class='tweetCharsLeft' style='margin-left: 20px;'>" + charsStart + "</span>")
 
-        $('#tweet-form textarea').keyup(function(event){
+        $('.tweet-form textarea').keyup(function(event){
           /**
           the built up keyup function monitors
           the typing inside the textarea of our form
           **/
           var tweetValue = $(this).val(); // grabs what is inside the textarea
           charsCurrent = charsStart - tweetValue.length;
-          var spanChars = $('#tweetCharsLeft');
+          var spanChars = $(this).parent().parent().parent().find('span.tweetCharsLeft');
           spanChars.text(charsCurrent); // updates the current chars num
 
           if (charsCurrent > 0 ) {
@@ -284,7 +309,7 @@
         })
 
         // ajax form tweet submission
-        $('#tweet-form').submit(function(event){
+        $('.tweet-form').submit(function(event){
           event.preventDefault();
           var this_ = $(this)
           var formData = this_.serialize();  // outputs json data
@@ -299,6 +324,8 @@
                 // empty the form after sumbission
                 this_.find('input[type=text], textarea').val('');
                 updateHashLinks();
+                // close reply modal after submission
+                $('#replyModal').modal('hide');
               },
               error: function(data){
                 console.log('error');

@@ -47,6 +47,7 @@ class ParentTweetModelSerializer(serializers.ModelSerializer):
 
 
 class TweetModelSerializer(serializers.ModelSerializer):
+    parent_id = serializers.CharField(write_only=True, required=False)
     user = UserDisplaySerializer(read_only=True)
     date_display = serializers.SerializerMethodField()
     timesince = serializers.SerializerMethodField()
@@ -81,6 +82,7 @@ class TweetModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tweet
         fields = [
+            'parent_id',
             'id',
             'user',
             'content',
@@ -92,3 +94,4 @@ class TweetModelSerializer(serializers.ModelSerializer):
             'did_like',
             'reply',
         ]
+        #read_only_fields = ['reply']
