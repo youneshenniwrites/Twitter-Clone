@@ -70,6 +70,23 @@ class Tweet(models.Model):
     def get_absolute_url(self):
         return reverse('tweets:detail', kwargs={'pk': self.pk})
 
+    def get_parent(self):
+        the_parent = self
+        if self.parent:
+            the_parent = self.parent
+        return the_parent
+
+    def get_children(self):
+        '''
+        grabs all replies for a tweet in the detail page
+        including the parent tweet.
+        '''
+
+        parent = self.get_parent()
+        qs = Tweet.objects.filter(parent=parent)
+        qs_parent = Tweet.objects.filter(pk=parent.pk)
+        return (qs| qs_parent)
+
     class Meta:
         ordering = ['-timestamp']
 

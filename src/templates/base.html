@@ -17,6 +17,9 @@
       .grey-color {
         color: #ccc;
       }
+      .media-focus {
+        background-color: #e8a2a2;
+      }
     </style>
 
   </head>
@@ -53,7 +56,7 @@
         return decodeURIComponent(results[2].replace(/\+/g, " "));
       }
 
-      function loadTweetContainer(tweetContainerID){
+      function loadTweetContainer(tweetContainerID, fetchOneId){
         // dynamically load tweets everywhere
 
         var query = getParameterByName('q');
@@ -102,13 +105,12 @@
           var username = this_.attr('data-user');
           var content = this_.parent().parent().find('.content').text();
           // calling an empty modal reply form
-          $('#replyModal').modal({})
+          $('#replyModal').modal({});
           $('#replyModal textarea').after("<input type='hidden' value='" + parentId + "' name='parent_id'>");
           $('#replyModal textarea').after("<input type='hidden' value='" + true + "' name='reply'>");
           $('#replyModal textarea').val('@' + username + " ");
           // dynamic title of parent tweet
           $('#replyModal #replyModalLabel').text('Reply to: ' + content);
-          $('#replyModal').
           $('#replyModal').on('shown.bs.modal', function(){
             // start typing in the textarea immediatly
             $('textarea').focus();
@@ -165,6 +167,22 @@
           var tweetContent;
           var isReply = tweetValue.reply;
 
+
+          // linking replies to their parent tweet
+          var replyId = tweetValue.id;
+          if (tweetValue.parent){
+            replyId = tweetValue.parent.id;
+          };
+
+          // highlighting the selected tweet
+          var openingContainerDiv = "<div class=\"media\">";
+          if (tweetValue.id == fetchOneId){
+            openingContainerDiv = "<div class=\"media media-focus\">";
+            setTimeout(function(){
+              $('.media-focus').css('background-color', 'white')
+            }, 2000);
+          };
+
           if (tweetValue.parent && !isReply){
             // only for retweeted tweets
             tweetValue = tweetValue.parent;
@@ -192,13 +210,13 @@
           + " | <a href='#' class='tweet-like' data-id='"
           + tweetValue.id + "''>" + verb + " (" + tweetValue.likes + ")</a>"
           + " | <a href='#' class='tweet-reply' data-user='" + tweetValue.user.username + "' data-id='"
-          + tweetValue.id + "''>Reply</a>";
+          + replyId + "''>Reply</a>";
 
           if (preContent){
-            container = "<div class=\"media\"><div class=\"media-body\">"
+            container = openingContainerDiv + "<div class=\"media-body\">"
             + preContent + tweetContent + "</div></div><hr>";
           } else {
-            container = "<div class=\"media\"><div class=\"media-body\">"
+            container = openingContainerDiv + "<div class=\"media-body\">"
             + tweetContent + "</div></div><hr>";
           }
 
@@ -266,7 +284,35 @@
           });
         }
 
-        fetchTweets();
+        // fetching single tweets
+        function fetchSingle(fetchOneId){
+          var fecthDetailUrl = '/api/tweets/' + fetchOneId + '/';
+          $.ajax({
+            url: fecthDetailUrl,
+            method: "GET",
+            success: function(data){
+               console.log(data);
+               tweetList = data.results;
+              // if (data.next) {
+              //   nextTweetUrl = data.next;
+              // } else {
+              //   $('#load-more').css('display', 'none');
+              // }
+              parseTweets();
+              updateHashLinks();
+            },
+            error: function(data){
+              console.log('error');
+              console.log(data);
+            }
+          });
+        }
+
+        if (fetchOneId){
+          fetchSingle(fetchOneId);
+        } else {
+          fetchTweets();
+        }
 
         $('#load-more').click(function(event){
           event.preventDefault();
