@@ -38,6 +38,16 @@ class UserProfileManager(models.Manager):
             return True
         return False
 
+    def recommended(self, user, limit_to=10):
+        '''
+        recommending profiles to the user to follow
+        '''
+
+        profile = user.profile
+        following = profile.get_following()
+        qs = self.get_queryset().exclude(user__in=following).exclude(id=profile.id).order_by('?')[:limit_to]
+        return qs
+
 
 class UserProfile(models.Model):
     # user.profile --> me

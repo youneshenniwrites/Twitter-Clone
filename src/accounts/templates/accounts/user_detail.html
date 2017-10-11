@@ -29,16 +29,16 @@
         </p>
 
         <hr>
-        <h1>Following ({{ object.profile.get_following.count }})</h1>
+        <h2>Following ({{ object.profile.get_following.count }})</h2>
         {% for user in object.profile.get_following %}
           <a href="/{{ user.username }}">{{ user.username }}</a><br/>
           {% empty %}
           <h4>Not following any users</h4>
-          {% endfor %}
+        {% endfor %}
 
-          <hr>
-          <h1>Followed by:</h1>
-          {% for profile in object.followed_by.all %}
+        <hr>
+        <h2>Followed by:</h2>
+        {% for profile in object.followed_by.all %}
           <a href="/{{ profile.user.username }}">{{ profile.user.username }}</a><br/>
           {% empty %}
           <h4>Not followed by any users</h4>
