@@ -4,6 +4,7 @@ from django.contrib import admin
 from django.conf import settings
 from django.conf.urls.static import static
 
+from accounts.views import UserRegisterView
 from .views import home, SearchView
 from hashtags.views import HashTagView
 from tweets.views import TweetListView
@@ -21,6 +22,8 @@ urlpatterns = [
     url(r'^api/search/$', SearchTweetAPIView.as_view(), name='search-api'),
     url(r'^api/tweets/', include('tweets.api.urls', namespace='tweets-api')),
     url(r'^api/', include('accounts.api.urls', namespace='profiles-api')),
+    url(r'^register/$', UserRegisterView.as_view(), name='register'),
+    url(r'^', include('django.contrib.auth.urls')), # Django built in login view
     url(r'^', include('accounts.urls', namespace='profiles')),
 ]
 
